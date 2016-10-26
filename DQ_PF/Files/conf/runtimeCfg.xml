@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<runtimeconfig>
+  <contributedConfigs/>
+  <pathVariables/>
+  <dataSources>
+    <dataSource driverclass="org.apache.derby.jdbc.ClientDriver" name="DQD_PF" user="admin" password="crypted:DESede:qm7ZjXVj1ZQ+5ongMZP9P+/TNEUiZ2K4pX8HwSTGUlE=" url="jdbc:derby://localhost:1527/DQD_PF;create=true"/>
+  </dataSources>
+  <parallelismLevel>1</parallelismLevel>
+</runtimeconfig>

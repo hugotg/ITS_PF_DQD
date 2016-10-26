@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<runtimeconfig>
+	<contributedConfigs/>
+	<dataSources>
+		<dataSource driverclass="org.apache.derby.jdbc.ClientDriver" name="DQD_PF" password="crypted:DESede:Jq2e6UNevxQqFg9uB/pmm+Vass7xkCuBpX8HwSTGUlE=" url="jdbc:derby://localhost:1527/DQD_PF;create=true" user="admin"/>
+	</dataSources>
+	<pathVariables>
+		<pathVariable name="EXT" value="../data/ext"/>
+		<pathVariable name="DATA" value="../data"/>
+		<pathVariable name="DATA_IN" value="../data/in"/>
+	</pathVariables>
+	<parallelismLevel>1</parallelismLevel>
+</runtimeconfig>

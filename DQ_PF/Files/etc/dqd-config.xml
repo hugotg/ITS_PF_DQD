@@ -1,0 +1,1169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dqd-config>
+	<preferences>
+		<datamart>DQD_PF</datamart>
+		<drillThrough>
+			<fullOutput>
+				<outputDirectory>../data/out</outputDirectory>
+				<fileNamePattern>dqd_${processing.start:yyMMdd}_${processing.start:HHmmss}_${system}_${model}.csv</fileNamePattern>
+			</fullOutput>
+			<sampleSize>100</sampleSize>
+		</drillThrough>
+		<filterCombinationLimit>1000</filterCombinationLimit>
+	</preferences>
+	<systems>
+		<system code="CIF" name="CIF" description="Customer Information File">
+			<models>
+				<model code="retail" name="Retail Cutomer Details" description="Model with Retail Cutomer related data elements">
+					<source class="com.ataccama.dqd.engine.sources.PlanDataSource" planFileName="../engine/load/CIF_retail.comp"/>
+					<entities>
+						<entity name="customer" centralEntity="true">
+							<columns>
+								<column label="Customer ID" name="id" type="integer"/>
+								<column label="Customer Type" name="cust_type" type="string"/>
+								<column label="First name" name="first_name" type="string"/>
+								<column label="Last name" name="last_name" type="string"/>
+								<column label="Social Security Number" name="ssn" type="string"/>
+								<column label="Gender" name="gender" type="string"/>
+								<column label="Date of Birth" name="dob" type="day"/>
+								<column label="Permission to Market" name="pref_market" type="string"/>
+								<column label="Permission to Share" name="pref_share" type="string"/>
+							</columns>
+							<rules>
+								<rule code="CIF.retail.customer.cust_type.CSTMR_TP" name="Customer Type" rule="CSTMR_TP">
+									<mapping>
+										<column entityColumn="cust_type" ruleColumn="src_customer_type"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.retail.customer.gender.GNDR" name="Gender" rule="GNDR">
+									<mapping>
+										<column entityColumn="gender" ruleColumn="src_gender"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.retail.customer.pref_market.CIF_PERM" name="Permission to Market" rule="CIF_PERM">
+									<mapping>
+										<column entityColumn="pref_market" ruleColumn="src_permission_to_market"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.retail.customer.pref_share.CIF_PERM" name="Permission to Share" rule="CIF_PERM">
+									<mapping>
+										<column entityColumn="pref_share" ruleColumn="src_permission_to_market"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.retail.customer.full_name.CIF_FULL_NAME" name="Full name" rule="CIF_FULL_NAME" mappingType="collection" collectionCode="CIF.retail.customer.full_name" collectionName="Full name">
+									<mapping>
+										<column entityColumn="first_name" ruleColumn="src_first_name"/>
+										<column entityColumn="last_name" ruleColumn="src_last_name"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.retail.customer.DOB.CIF_DOB" name="Birth date" rule="CIF_DOB" mappingType="collection" collectionCode="CIF.retail.customer.DOB" collectionName="Birth date">
+									<mapping>
+										<column entityColumn="dob" ruleColumn="src_birth_date"/>
+										<column entityColumn="cust_type" ruleColumn="src_customer_type"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.retail.customer.acc_name.accuracy_test" name="Full name" rule="accuracy_test" mappingType="collection" collectionCode="CIF.retail.customer.acc_name" collectionName="Full name">
+									<mapping>
+										<column entityColumn="first_name" ruleColumn="in_column"/>
+										<column entityColumn="dob" ruleColumn="in_date"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.retail.customer.acc_gender.accuracy_test" name="Gender" rule="accuracy_test" mappingType="collection" collectionCode="CIF.retail.customer.acc_gender" collectionName="Gender">
+									<mapping>
+										<column entityColumn="gender" ruleColumn="in_column"/>
+										<column entityColumn="dob" ruleColumn="in_date"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.retail.customer.acc_ssn.accuracy_test" name="Social Security Number" rule="accuracy_test" mappingType="collection" collectionCode="CIF.retail.customer.acc_ssn" collectionName="Social Security Number">
+									<mapping>
+										<column entityColumn="ssn" ruleColumn="in_column"/>
+										<column entityColumn="dob" ruleColumn="in_date"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.retail.customer.cmpl_name.completeness_test" name="Full name" rule="completeness_test" mappingType="collection" collectionCode="CIF.retail.customer.cmpl_name" collectionName="Full name">
+									<mapping>
+										<column entityColumn="first_name" ruleColumn="in_column"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.retail.customer.cmpl_gender.completeness_test" name="Gender" rule="completeness_test" mappingType="collection" collectionCode="CIF.retail.customer.cmpl_gender" collectionName="Gender">
+									<mapping>
+										<column entityColumn="gender" ruleColumn="in_column"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.retail.customer.cmpl_ssn.completeness_test" name="Social Security Number" rule="completeness_test" mappingType="collection" collectionCode="CIF.retail.customer.cmpl_ssn" collectionName="Social Security Number">
+									<mapping>
+										<column entityColumn="ssn" ruleColumn="in_column"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.retail.customer.blacklisted_ssn.MTCH_BLACKLISTED_SSN" name="Blacklisted SSN" rule="MTCH_BLACKLISTED_SSN" mappingType="collection" collectionCode="CIF.retail.customer.blacklisted_ssn" collectionName="Blacklisted SSN">
+									<mapping>
+										<column entityColumn="ssn" ruleColumn="in_ssn"/>
+									</mapping>
+								</rule>
+							</rules>
+							<multiEntityRules>
+								<rule code="CIF.retail.customer.has_work_email.HAS_VALID_W_EML" name="Work Email" rule="HAS_VALID_W_EML" mappingType="collection" collectionCode="CIF.retail.customer.has_work_email" collectionName="Work Email">
+									<mapping>
+										<columns>
+											<column entityColumn="cust_type" ruleColumn="src_cust_type"/>
+										</columns>
+										<childEntities>
+											<childEntity relationship="Customer has Email">
+												<columns>
+													<column entityColumn="type" ruleColumn="src_email_type"/>
+													<column entityRuleResult="CIF.retail.email.email.EmailValid" ruleColumn="email_rule_result"/>
+												</columns>
+											</childEntity>
+										</childEntities>
+									</mapping>
+								</rule>
+								<rule code="CIF.retail.customer.has_phone.HAS_VALID_W_PHN" name="Phone" rule="HAS_VALID_W_PHN" mappingType="collection" collectionCode="CIF.retail.customer.has_phone" collectionName="Phone">
+									<mapping>
+										<columns>
+											<column entityColumn="cust_type" ruleColumn="src_cust_type"/>
+										</columns>
+										<childEntities>
+											<childEntity relationship="Customer has Phone">
+												<columns>
+													<column entityRuleResult="CIF.retail.phone.phone.PhoneValid" ruleColumn="phone_rule_result"/>
+												</columns>
+											</childEntity>
+										</childEntities>
+									</mapping>
+								</rule>
+							</multiEntityRules>
+							<relationships>
+								<relationship childEntity="email" name="Customer has Email">
+									<foreignKeys>
+										<foreignKey foreignKeyColumn="customer_id" parentColumn="id"/>
+									</foreignKeys>
+								</relationship>
+								<relationship childEntity="contract" name="Customer has Contract">
+									<foreignKeys>
+										<foreignKey foreignKeyColumn="customer_id" parentColumn="id"/>
+									</foreignKeys>
+								</relationship>
+								<relationship childEntity="phone" name="Customer has Phone">
+									<foreignKeys>
+										<foreignKey foreignKeyColumn="customer_id" parentColumn="id"/>
+									</foreignKeys>
+								</relationship>
+							</relationships>
+						</entity>
+						<entity name="email">
+							<columns>
+								<column label="Customer ID" name="customer_id" type="integer"/>
+								<column label="Email" name="email" type="string"/>
+								<column label="Type" name="type" type="string"/>
+								<column label="Mention rate" name="mention_rate" type="integer"/>
+							</columns>
+							<rules>
+								<rule code="CIF.retail.email.email.EmailValid" name="Email" rule="EmailValid">
+									<mapping>
+										<column entityColumn="email" ruleColumn="in_email"/>
+									</mapping>
+								</rule>
+							</rules>
+							<multiEntityRules/>
+							<relationships/>
+						</entity>
+						<entity name="contract">
+							<columns>
+								<column label="ID" name="id" type="integer"/>
+								<column label="Customer ID" name="customer_id" type="integer"/>
+								<column label="SalePoint" name="salepoint_id" type="string"/>
+								<column label="Status" name="status" type="string"/>
+								<column label="Type" name="type" type="string"/>
+								<column label="Date From" name="dt_from" type="string"/>
+								<column label="Date To" name="dt_to" type="string"/>
+								<column label="Product" name="prdct" type="string"/>
+								<column label="Amount" name="amt" type="string"/>
+								<column label="Currency" name="crncy" type="string"/>
+							</columns>
+							<rules/>
+							<multiEntityRules/>
+							<relationships/>
+						</entity>
+						<entity name="phone">
+							<columns>
+								<column label="Customer ID" name="customer_id" type="integer"/>
+								<column label="Phone Number" name="phone" type="string"/>
+								<column label="Type" name="type" type="string"/>
+							</columns>
+							<rules>
+								<rule code="CIF.retail.phone.phone.PhoneValid" name="Phone Number" rule="PhoneValid">
+									<mapping>
+										<column entityColumn="phone" ruleColumn="src_phone"/>
+									</mapping>
+								</rule>
+							</rules>
+							<multiEntityRules/>
+							<relationships/>
+						</entity>
+					</entities>
+					<filters>
+						<filter columnName="cust_type" name="Customer Type"/>
+						<filter columnName="gender" name="Customer Gender"/>
+					</filters>
+					<aggregations>
+						<aggregation name="CIF Retail Customer" code="CIF.retail">
+							<aggregations>
+								<aggregation name="Demographics" code="CIF.retail.Demographics">
+									<rules>
+										<rule ruleInstance="CIF.retail.customer.cust_type.CSTMR_TP"/>
+										<rule ruleInstance="CIF.retail.customer.gender.GNDR"/>
+										<rule ruleInstance="CIF.retail.customer.DOB.CIF_DOB"/>
+										<rule ruleInstance="CIF.retail.customer.full_name.CIF_FULL_NAME"/>
+										<rule ruleInstance="CIF.retail.customer.cmpl_name.completeness_test"/>
+										<rule ruleInstance="CIF.retail.customer.cmpl_gender.completeness_test"/>
+										<rule ruleInstance="CIF.retail.customer.cmpl_ssn.completeness_test"/>
+										<rule ruleInstance="CIF.retail.customer.acc_name.accuracy_test"/>
+										<rule ruleInstance="CIF.retail.customer.acc_gender.accuracy_test"/>
+										<rule ruleInstance="CIF.retail.customer.acc_ssn.accuracy_test"/>
+										<rule ruleInstance="CIF.retail.customer.blacklisted_ssn.MTCH_BLACKLISTED_SSN"/>
+									</rules>
+								</aggregation>
+								<aggregation name="Preferences" code="CIF.retail.Preferences">
+									<rules>
+										<rule ruleInstance="CIF.retail.customer.pref_market.CIF_PERM"/>
+										<rule ruleInstance="CIF.retail.customer.pref_share.CIF_PERM"/>
+									</rules>
+								</aggregation>
+								<aggregation name="Contact" code="CIF.retail.Contact">
+									<aggregations>
+										<aggregation name="Email" code="CIF.retail.Contact.Email">
+											<rules>
+												<rule ruleInstance="CIF.retail.customer.has_work_email.HAS_VALID_W_EML"/>
+											</rules>
+										</aggregation>
+										<aggregation name="Phone" code="CIF.retail.Contact.Phone">
+											<rules>
+												<rule ruleInstance="CIF.retail.customer.has_phone.HAS_VALID_W_PHN"/>
+											</rules>
+										</aggregation>
+									</aggregations>
+								</aggregation>
+							</aggregations>
+						</aggregation>
+					</aggregations>
+				</model>
+				<model code="corporate" name="Corporate Cutomer Details" description="Model with Corporate Cutomer related data elements">
+					<source class="com.ataccama.dqd.engine.sources.PlanDataSource" planFileName="../engine/load/CIF_corporate.comp"/>
+					<entities>
+						<entity name="customer" centralEntity="true">
+							<columns>
+								<column label="Customer ID" name="id" type="integer"/>
+								<column label="Customer Type" name="cust_type" type="string"/>
+								<column label="Legal Name" name="legal_name" type="string"/>
+								<column label="Tax id" name="tx_id" type="string"/>
+								<column label="Registration Date" name="reg_dt" type="day"/>
+								<column label="Permission to Market" name="pref_market" type="string"/>
+								<column label="Permission to Share" name="pref_share" type="string"/>
+							</columns>
+							<rules>
+								<rule code="CIF.corporate.customer.cust_type.CSTMR_TP" name="Customer Type" rule="CSTMR_TP">
+									<mapping>
+										<column entityColumn="cust_type" ruleColumn="src_customer_type"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.corporate.customer.legal_name.CIF_LGL_NM" name="Legal Name" rule="CIF_LGL_NM">
+									<mapping>
+										<column entityColumn="legal_name" ruleColumn="src_legal_name"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.corporate.customer.reg_dt.CIF_RGSTR_DT" name="Registration Date" rule="CIF_RGSTR_DT">
+									<mapping>
+										<column entityColumn="reg_dt" ruleColumn="src_registration_date"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.corporate.customer.pref_market.CIF_PERM" name="Permission to Market" rule="CIF_PERM">
+									<mapping>
+										<column entityColumn="pref_market" ruleColumn="src_permission_to_market"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.corporate.customer.pref_share.CIF_PERM" name="Permission to Share" rule="CIF_PERM">
+									<mapping>
+										<column entityColumn="pref_share" ruleColumn="src_permission_to_market"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.corporate.customer.blacklisted_tax_id.MTCH_TAX_ID" name="Blacklisted Tax ID" rule="MTCH_TAX_ID" mappingType="collection" collectionCode="CIF.corporate.customer.blacklisted_tax_id" collectionName="Blacklisted Tax ID">
+									<mapping>
+										<column entityColumn="tx_id" ruleColumn="in_tax_id"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.corporate.customer.acc_tax_id.accuracy_test" name="Tax ID" rule="accuracy_test" mappingType="collection" collectionCode="CIF.corporate.customer.acc_tax_id" collectionName="Tax ID">
+									<mapping>
+										<column entityColumn="tx_id" ruleColumn="in_column"/>
+										<column entityColumn="reg_dt" ruleColumn="in_date"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.corporate.customer.acc_legal_name.accuracy_test" name="Legal Name" rule="accuracy_test" mappingType="collection" collectionCode="CIF.corporate.customer.acc_legal_name" collectionName="Legal Name">
+									<mapping>
+										<column entityColumn="legal_name" ruleColumn="in_column"/>
+										<column entityColumn="reg_dt" ruleColumn="in_date"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.corporate.customer.compl_tax_id.completeness_test" name="Tax ID" rule="completeness_test" mappingType="collection" collectionCode="CIF.corporate.customer.compl_tax_id" collectionName="Tax ID">
+									<mapping>
+										<column entityColumn="tx_id" ruleColumn="in_column"/>
+									</mapping>
+								</rule>
+								<rule code="CIF.corporate.customer.compl_legal_name.completeness_test" name="Legal Name" rule="completeness_test" mappingType="collection" collectionCode="CIF.corporate.customer.compl_legal_name" collectionName="Legal Name">
+									<mapping>
+										<column entityColumn="legal_name" ruleColumn="in_column"/>
+									</mapping>
+								</rule>
+							</rules>
+							<multiEntityRules>
+								<rule code="CIF.corporate.customer.has_work_email.HAS_VALID_W_EML" name="Work Email" rule="HAS_VALID_W_EML" mappingType="collection" collectionCode="CIF.corporate.customer.has_work_email" collectionName="Work Email">
+									<mapping>
+										<columns>
+											<column entityColumn="cust_type" ruleColumn="src_cust_type"/>
+										</columns>
+										<childEntities>
+											<childEntity relationship="Customer has Email">
+												<columns>
+													<column entityColumn="type" ruleColumn="src_email_type"/>
+													<column entityRuleResult="CIF.corporate.email.email.EmailValid" ruleColumn="email_rule_result"/>
+												</columns>
+											</childEntity>
+										</childEntities>
+									</mapping>
+								</rule>
+								<rule code="CIF.corporate.customer.has_phone.HAS_VALID_W_PHN" name="Phone" rule="HAS_VALID_W_PHN" mappingType="collection" collectionCode="CIF.corporate.customer.has_phone" collectionName="Phone">
+									<mapping>
+										<columns>
+											<column entityColumn="cust_type" ruleColumn="src_cust_type"/>
+										</columns>
+										<childEntities>
+											<childEntity relationship="Customer has Phone">
+												<columns>
+													<column entityRuleResult="CIF.corporate.phone.phone.PhoneValid" ruleColumn="phone_rule_result"/>
+												</columns>
+											</childEntity>
+										</childEntities>
+									</mapping>
+								</rule>
+							</multiEntityRules>
+							<relationships>
+								<relationship childEntity="email" name="Customer has Email">
+									<foreignKeys>
+										<foreignKey foreignKeyColumn="customer_id" parentColumn="id"/>
+									</foreignKeys>
+								</relationship>
+								<relationship childEntity="contract" name="Customer has Contract">
+									<foreignKeys>
+										<foreignKey foreignKeyColumn="customer_id" parentColumn="id"/>
+									</foreignKeys>
+								</relationship>
+								<relationship childEntity="phone" name="Customer has Phone">
+									<foreignKeys>
+										<foreignKey foreignKeyColumn="customer_id" parentColumn="id"/>
+									</foreignKeys>
+								</relationship>
+							</relationships>
+						</entity>
+						<entity name="email">
+							<columns>
+								<column label="Customer ID" name="customer_id" type="integer"/>
+								<column label="Email" name="email" type="string"/>
+								<column label="Type" name="type" type="string"/>
+								<column label="Mention rate" name="mention_rate" type="integer"/>
+							</columns>
+							<rules>
+								<rule code="CIF.corporate.email.email.EmailValid" name="Email" rule="EmailValid">
+									<mapping>
+										<column entityColumn="email" ruleColumn="in_email"/>
+									</mapping>
+								</rule>
+							</rules>
+							<multiEntityRules/>
+							<relationships/>
+						</entity>
+						<entity name="contract">
+							<columns>
+								<column label="Customer ID" name="customer_id" type="integer"/>
+								<column label="SalePoint" name="salepoint_id" type="string"/>
+								<column label="Status" name="status" type="string"/>
+								<column label="Type" name="type" type="string"/>
+								<column label="Date From" name="dt_from" type="string"/>
+								<column label="Date To" name="dt_to" type="string"/>
+								<column label="Product" name="prdct" type="string"/>
+								<column label="Amount" name="amt" type="string"/>
+								<column label="Currency" name="crncy" type="string"/>
+							</columns>
+							<rules/>
+							<multiEntityRules/>
+							<relationships/>
+						</entity>
+						<entity name="phone">
+							<columns>
+								<column label="Customer ID" name="customer_id" type="integer"/>
+								<column label="Phone Number" name="phone" type="string"/>
+								<column label="Type" name="type" type="string"/>
+							</columns>
+							<rules>
+								<rule code="CIF.corporate.phone.phone.PhoneValid" name="Phone Number" rule="PhoneValid">
+									<mapping>
+										<column entityColumn="phone" ruleColumn="src_phone"/>
+									</mapping>
+								</rule>
+							</rules>
+							<multiEntityRules/>
+							<relationships/>
+						</entity>
+					</entities>
+					<filters>
+						<filter columnName="cust_type" name="Customer Type"/>
+					</filters>
+					<aggregations>
+						<aggregation name="CIF Corporate Customer" code="CIF.corporate">
+							<aggregations>
+								<aggregation name="Demographics" code="CIF.corporate.Demographics">
+									<rules>
+										<rule ruleInstance="CIF.corporate.customer.cust_type.CSTMR_TP"/>
+										<rule ruleInstance="CIF.corporate.customer.legal_name.CIF_LGL_NM"/>
+										<rule ruleInstance="CIF.corporate.customer.reg_dt.CIF_RGSTR_DT"/>
+										<rule ruleInstance="CIF.corporate.customer.acc_tax_id.accuracy_test"/>
+										<rule ruleInstance="CIF.corporate.customer.acc_legal_name.accuracy_test"/>
+										<rule ruleInstance="CIF.corporate.customer.compl_tax_id.completeness_test"/>
+										<rule ruleInstance="CIF.corporate.customer.compl_legal_name.completeness_test"/>
+										<rule ruleInstance="CIF.corporate.customer.blacklisted_tax_id.MTCH_TAX_ID"/>
+									</rules>
+								</aggregation>
+								<aggregation name="Preferences" code="CIF.corporate.Preferences">
+									<rules>
+										<rule ruleInstance="CIF.corporate.customer.pref_market.CIF_PERM"/>
+										<rule ruleInstance="CIF.corporate.customer.pref_share.CIF_PERM"/>
+									</rules>
+								</aggregation>
+								<aggregation name="Contact" code="CIF.corporate.Contact">
+									<aggregations>
+										<aggregation name="Email" code="CIF.corporate.Contact.Email">
+											<rules>
+												<rule ruleInstance="CIF.corporate.customer.has_work_email.HAS_VALID_W_EML"/>
+											</rules>
+										</aggregation>
+										<aggregation name="Phone" code="CIF.corporate.Contact.Phone">
+											<rules>
+												<rule ruleInstance="CIF.corporate.customer.has_phone.HAS_VALID_W_PHN"/>
+											</rules>
+										</aggregation>
+									</aggregations>
+								</aggregation>
+							</aggregations>
+						</aggregation>
+					</aggregations>
+				</model>
+			</models>
+		</system>
+		<system code="Marketing" name="Marketing CRM" description="">
+			<models>
+				<model code="crm" name="CRM Application" description="Data exrtract from Company CRM already process by DQ engine.">
+					<source class="com.ataccama.dqd.engine.sources.PlanDataSource" planFileName="../engine/load/Marketing_crm.comp"/>
+					<entities>
+						<entity name="customer" centralEntity="true">
+							<columns>
+								<column label="ID" name="ID" type="integer"/>
+								<column label="Customer Type - src" name="CSTMR_TYPE" type="string"/>
+								<column label="Customer Type" name="exp_CSTMR_TYPE" type="string"/>
+								<column label="Name - src" name="FULL_NM" type="string"/>
+								<column label="Full name" name="exp_FULL_NM" type="string"/>
+								<column label="Gender - src" name="GNDR" type="string"/>
+								<column label="Gender" name="exp_GNDR" type="string"/>
+								<column label="Phone Area Code - src" name="PHONE_AREA_CD" type="string"/>
+								<column label="Phone Number - src" name="PHONE_NMBR" type="string"/>
+								<column label="Phone Number" name="exp_PHONE" type="string"/>
+								<column label="E-mail - src" name="EMAIL" type="string"/>
+								<column label="E-mail" name="exp_EMAIL" type="string"/>
+							</columns>
+							<rules>
+								<rule code="Marketing.crm.customer.CSTMR_TYPE.completeness_test" name="Customer Type - src" rule="completeness_test">
+									<mapping>
+										<column entityColumn="CSTMR_TYPE" ruleColumn="in_column"/>
+									</mapping>
+								</rule>
+								<rule code="Marketing.crm.customer.exp_CSTMR_TYPE.cp_exp_cust_type" name="Customer Type" rule="cp_exp_cust_type">
+									<mapping>
+										<column entityColumn="exp_CSTMR_TYPE" ruleColumn=""/>
+									</mapping>
+								</rule>
+								<rule code="Marketing.crm.customer.FULL_NM.completeness_test" name="Name - src" rule="completeness_test">
+									<mapping>
+										<column entityColumn="FULL_NM" ruleColumn="in_column"/>
+									</mapping>
+								</rule>
+								<rule code="Marketing.crm.customer.exp_FULL_NM.cp_exp_full_name" name="Full name" rule="cp_exp_full_name">
+									<mapping>
+										<column entityColumn="exp_FULL_NM" ruleColumn=""/>
+									</mapping>
+								</rule>
+								<rule code="Marketing.crm.customer.GNDR.completeness_test" name="Gender - src" rule="completeness_test">
+									<mapping>
+										<column entityColumn="GNDR" ruleColumn="in_column"/>
+									</mapping>
+								</rule>
+								<rule code="Marketing.crm.customer.exp_GNDR.cp_exp_gender" name="Gender" rule="cp_exp_gender">
+									<mapping>
+										<column entityColumn="exp_GNDR" ruleColumn=""/>
+									</mapping>
+								</rule>
+								<rule code="Marketing.crm.customer.PHONE_AREA_CD.completeness_test" name="Phone Area Code - src" rule="completeness_test">
+									<mapping>
+										<column entityColumn="PHONE_AREA_CD" ruleColumn="in_column"/>
+									</mapping>
+								</rule>
+								<rule code="Marketing.crm.customer.PHONE_NMBR.completeness_test" name="Phone Number - src" rule="completeness_test">
+									<mapping>
+										<column entityColumn="PHONE_NMBR" ruleColumn="in_column"/>
+									</mapping>
+								</rule>
+								<rule code="Marketing.crm.customer.exp_PHONE.cp_exp_phone" name="Phone Number" rule="cp_exp_phone">
+									<mapping>
+										<column entityColumn="exp_PHONE" ruleColumn=""/>
+									</mapping>
+								</rule>
+								<rule code="Marketing.crm.customer.EMAIL.completeness_test" name="E-mail - src" rule="completeness_test">
+									<mapping>
+										<column entityColumn="EMAIL" ruleColumn="in_column"/>
+									</mapping>
+								</rule>
+								<rule code="Marketing.crm.customer.exp_EMAIL.cp_exp_email" name="E-mail" rule="cp_exp_email">
+									<mapping>
+										<column entityColumn="exp_EMAIL" ruleColumn=""/>
+									</mapping>
+								</rule>
+							</rules>
+							<multiEntityRules/>
+							<relationships/>
+						</entity>
+					</entities>
+					<filters>
+						<filter columnName="CSTMR_TYPE" name="Customer Type"/>
+					</filters>
+					<aggregations>
+						<aggregation name="CRM Customer" code="Marketing.crm">
+							<aggregations>
+								<aggregation name="Demographics" code="Marketing.crm.Demographics">
+									<rules>
+										<rule ruleInstance="Marketing.crm.customer.exp_CSTMR_TYPE.cp_exp_cust_type"/>
+										<rule ruleInstance="Marketing.crm.customer.exp_FULL_NM.cp_exp_full_name"/>
+										<rule ruleInstance="Marketing.crm.customer.exp_GNDR.cp_exp_gender"/>
+										<rule ruleInstance="Marketing.crm.customer.CSTMR_TYPE.completeness_test"/>
+										<rule ruleInstance="Marketing.crm.customer.FULL_NM.completeness_test"/>
+										<rule ruleInstance="Marketing.crm.customer.GNDR.completeness_test"/>
+										<rule ruleInstance="Marketing.crm.customer.PHONE_AREA_CD.completeness_test"/>
+										<rule ruleInstance="Marketing.crm.customer.PHONE_NMBR.completeness_test"/>
+										<rule ruleInstance="Marketing.crm.customer.EMAIL.completeness_test"/>
+									</rules>
+								</aggregation>
+								<aggregation name="Contact" code="Marketing.crm.Contact">
+									<rules>
+										<rule ruleInstance="Marketing.crm.customer.exp_EMAIL.cp_exp_email"/>
+										<rule ruleInstance="Marketing.crm.customer.exp_PHONE.cp_exp_phone"/>
+									</rules>
+								</aggregation>
+							</aggregations>
+						</aggregation>
+					</aggregations>
+				</model>
+			</models>
+		</system>
+	</systems>
+	<masterEntities>
+		<masterEntity code="Retail customer" name="Retail customer">
+			<aggregations>
+				<aggregation>CIF.retail</aggregation>
+				<aggregation>Marketing.crm</aggregation>
+			</aggregations>
+			<subEntities>
+				<masterEntity code="Retail customer.Contact" name="Contact">
+					<aggregations>
+						<aggregation>CIF.retail.Contact</aggregation>
+						<aggregation>Marketing.crm.Contact</aggregation>
+					</aggregations>
+				</masterEntity>
+				<masterEntity code="Retail customer.Demographics" name="Demographics">
+					<aggregations>
+						<aggregation>CIF.retail.Demographics</aggregation>
+						<aggregation>Marketing.crm.Demographics</aggregation>
+					</aggregations>
+				</masterEntity>
+			</subEntities>
+		</masterEntity>
+		<masterEntity code="Corporate customer" name="Corporate customer">
+			<aggregations>
+				<aggregation>CIF.corporate</aggregation>
+			</aggregations>
+			<subEntities>
+				<masterEntity code="Corporate customer.Contact" name="Contact">
+					<aggregations>
+						<aggregation>CIF.corporate.Contact</aggregation>
+					</aggregations>
+				</masterEntity>
+				<masterEntity code="Corporate customer.Demographics" name="Demographics">
+					<aggregations>
+						<aggregation>CIF.corporate.Demographics</aggregation>
+					</aggregations>
+				</masterEntity>
+			</subEntities>
+		</masterEntity>
+		<masterEntity code="Contact" name="Contact">
+			<aggregations>
+				<aggregation>CIF.retail.Contact</aggregation>
+				<aggregation>CIF.corporate.Contact</aggregation>
+				<aggregation>Marketing.crm.Contact</aggregation>
+			</aggregations>
+		</masterEntity>
+	</masterEntities>
+	<rules>
+		<rule class="com.ataccama.dqd.engine.rules.PlanRule" code="CSTMR_TP" dimension="VALIDITY" name="Customer Type" planFileName="../engine/rules/CSTMR_TP.comp">
+			<description>Customer type is mandatory attribute with allowed fields 'A' (Active), 'P' (Prospect), 'C' (Closed) as defined in reference file CSTMR_TYPE_2015_01.doc</description>
+			<input>
+				<column name="src_customer_type" type="string"/>
+			</input>
+			<invalidityReasons>
+				<reason code="NULL" description="The value is empty." name="NULL"/>
+				<reason code="INVALID" description="The value is outside of the allowed values." name="INVALID"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.PlanRule" code="EmailValid" dimension="VALIDITY" name="Email Validity" planFileName="../engine/rules/EmailValid.comp">
+			<description>Email is valid.</description>
+			<input>
+				<column name="in_email" type="string"/>
+			</input>
+			<invalidityReasons>
+				<reason code="EMAIL_EMPTY" description="Empty field." name="EMAIL_EMPTY"/>
+				<reason code="EMAIL_INVALID" description="Input e-mail address has an invalid format or has an unknown TLD." name="EMAIL_INVALID"/>
+				<reason code="EMAIL_AMBIGUOUS_DOMAIN" description="Input e-mail address contains only a TLD after @ (corresponding to the RFC 2822 standard), however the domain is considered suspicious." name="EMAIL_AMBIGUOUS_DOMAIN"/>
+				<reason code="EMAIL_CLEANSED" description="Email address is valid, however, the input value needs to be somewhat cleansed (brackets removed, i.e. &lt;email&gt; -&gt; email ). " name="EMAIL_CLEANSED"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.PlanRule" code="PhoneValid" dimension="VALIDITY" name="Phone Validity" planFileName="../engine/rules/PhoneValid.comp">
+			<description>Phone number must be valid US or Canadian phone number.
+Both international (i.e. 001 or +1) prefixes are allowed as well as no prefix.
+The number must consists of 10 digits, with the first 3 digits being valid area code from a list-of-values. The only additional characters
+allowed are rounded brackets '(' ')' and dash '-'.
+
+Cases of 7 repeated digits after the area code are considered default values entered either by a user or ETL process.</description>
+			<input>
+				<column name="src_phone" type="string"/>
+			</input>
+			<invalidityReasons>
+				<reason code="NULL" description="The value is empty." name="NULL"/>
+				<reason code="DEFAULT" description="Phone number consists of repeated characters only (i.e. 203 111-1111)" name="DEFAULT"/>
+				<reason code="INVALID_CHARS" description="Phone number contain invalid characters (letters)" name="INVALID_CHARS"/>
+				<reason code="SHORT" description="Phone number is shorter then 10 digits" name="SHORT"/>
+				<reason code="INVALID_AREA_CODE" description="Area code is invalid" name="INVALID_AREA_CODE"/>
+				<reason code="LONG" description="Phone number contains more then 10 digits (even after internation prefix separation)" name="LONG"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.PlanRule" code="CIF_FULL_NAME" dimension="VALIDITY" name="Full Name" planFileName="../engine/rules/CIF_FULL_NAME.comp">
+			<description>First name is a free form entry, mandatory, field. May be composed of letters (A-Z including French accented characters), apostrophes, hyphens, periods, slashes and spaces. 
+Last name is a free form entry, mandatory, field. May be composed of letters, apostrophes, hyphens, periods, slashes and spaces. </description>
+			<input>
+				<column name="src_first_name" type="string"/>
+				<column name="src_last_name" type="string"/>
+			</input>
+			<invalidityReasons>
+				<reason code="NULL" description="Both first name and last name are null." name="NULL"/>
+				<reason code="FN_INITIAL" description="First name has initial only (i.e. 'J.')" name="FN_INITIAL"/>
+				<reason code="FN_NULL" description="First name is null" name="FN_NULL"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.ExpressionRule" code="GNDR" dimension="VALIDITY" name="Gender">
+			<description>Gender is mandatory attribute with allowed values 'M' and 'F'</description>
+			<input>
+				<column name="src_gender" type="string"/>
+			</input>
+			<expressions>
+				<expression result="VALID">
+					<expression>src_gender is not null
+and 
+src_gender in {'M', 'F'}</expression>
+				</expression>
+				<expression result="NULL">
+					<expression>src_gender is null</expression>
+				</expression>
+				<expression result="DEFAULT">
+					<expression>lower(src_gender) = 'unknow'</expression>
+				</expression>
+				<expression result="INVALID">
+					<expression>true</expression>
+				</expression>
+			</expressions>
+			<invalidityReasons>
+				<reason code="NULL" description="Gender is null." name="NULL"/>
+				<reason code="DEFAULT" description="Gender is 'unknown'." name="DEFAULT"/>
+				<reason code="INVALID" description="Gender is outside of allowed list of values ('M','F','unknown')." name="INVALID"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.ExpressionRule" code="CIF_LGL_NM" dimension="VALIDITY" name="Legal Name">
+			<description>Mandatory, free form text entry.
+Must contain at least one character or number.</description>
+			<input>
+				<column name="src_legal_name" type="string"/>
+			</input>
+			<expressions>
+				<expression result="VALID">
+					<expression>src_legal_name is not null
+and
+(
+find(@"[a-zA-Z]",src_legal_name)
+or
+find(@"[0-9]",src_legal_name)
+)</expression>
+				</expression>
+				<expression result="NULL">
+					<expression>src_legal_name is null</expression>
+				</expression>
+				<expression result="SPECIAL_CHARACTERS_ONLY">
+					<expression>not find(@"[a-zA-Z]",src_legal_name)</expression>
+				</expression>
+			</expressions>
+			<invalidityReasons>
+				<reason code="NULL" description="The value is empty." name="NULL"/>
+				<reason code="SPECIAL_CHARACTERS_ONLY" description="Legal name does not contain any letter or number" name="SPECIAL_CHARACTERS_ONLY"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.ExpressionRule" code="CIF_RGSTR_DT" dimension="VALIDITY" name="Registration Date">
+			<description>Mandatory for Customers. Optional for Prospects. Cannot be a future date.
+
+The date 1900-01-01 is considered default and introduced by ETL.</description>
+			<input>
+				<column name="src_registration_date" type="day"/>
+			</input>
+			<expressions>
+				<expression result="VALID">
+					<expression>src_registration_date is not null
+	and
+src_registration_date &lt;= today()
+	and
+src_registration_date is not toDate('1900-01-01','yyyy-MM-dd')
+</expression>
+				</expression>
+				<expression result="NULL">
+					<expression>src_registration_date is null</expression>
+				</expression>
+				<expression result="IN_FUTURE">
+					<expression>src_registration_date &gt; today()</expression>
+				</expression>
+				<expression result="DEFAULT">
+					<expression>src_registration_date is toDate('1900-01-01','yyyy-MM-dd')</expression>
+				</expression>
+			</expressions>
+			<invalidityReasons>
+				<reason code="NULL" description="Registration date is empty" name="NULL"/>
+				<reason code="IN_FUTURE" description="Date is in future" name="IN_FUTURE"/>
+				<reason code="DEFAULT" description="Date value is populated with default value 1900-01-01" name="DEFAULT"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.ExpressionRule" code="IS_NOT_NULL" dimension="VALIDITY" name="Is Mandatory">
+			<description>Value is not empty/null.</description>
+			<input>
+				<column name="in_input" type="string"/>
+			</input>
+			<expressions>
+				<expression result="VALID">
+					<expression>in_input is not null</expression>
+				</expression>
+				<expression result="CHECK_NULL">
+					<expression>in_input is null</expression>
+				</expression>
+			</expressions>
+			<invalidityReasons>
+				<reason code="CHECK_NULL" description="Value is missing" name="CHECK_NULL"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.ExpressionRule" code="IS_INT_M" dimension="VALIDITY" name="Is Number (Mandatory)">
+			<description>Value is not null integer</description>
+			<input>
+				<column name="in_input" type="string"/>
+			</input>
+			<expressions>
+				<expression result="VALID">
+					<expression>toInteger(in_input) is not null</expression>
+				</expression>
+				<expression result="NULL">
+					<expression>in_input is null</expression>
+				</expression>
+				<expression result="NOT_INTEGER">
+					<expression>toString(in_input) is null</expression>
+				</expression>
+			</expressions>
+			<invalidityReasons>
+				<reason code="NULL" description="Value is null" name="NULL"/>
+				<reason code="NOT_INTEGER" description="Value is not null and not integer" name="NOT_INTEGER"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.ExpressionRule" code="IS_INT" dimension="VALIDITY" name="Is Number (Non Mandatory)">
+			<description>Value is integer (can be null)</description>
+			<input>
+				<column name="in_input" type="string"/>
+			</input>
+			<expressions>
+				<expression result="VALID">
+					<expression>toInteger(in_input) is not null
+or
+in_input is null
+</expression>
+				</expression>
+				<expression result="NOT_INTEGER">
+					<expression>toString(in_input) is null</expression>
+				</expression>
+			</expressions>
+			<invalidityReasons>
+				<reason code="NOT_INTEGER" description="Value is not null and not integer" name="NOT_INTEGER"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.ExpressionRule" code="CIF_PERM" dimension="VALIDITY" name="Permission Flag">
+			<description>Mandatory. List of valid values: Y,N</description>
+			<input>
+				<column name="src_permission_to_market" type="string"/>
+			</input>
+			<expressions>
+				<expression result="VALID">
+					<expression>src_permission_to_market is not null
+and
+src_permission_to_market in {'Y', 'N'}</expression>
+				</expression>
+				<expression result="NULL">
+					<expression>src_permission_to_market is null</expression>
+				</expression>
+				<expression result="INVALID">
+					<expression>//fallback
+true</expression>
+				</expression>
+			</expressions>
+			<invalidityReasons>
+				<reason code="NULL" description="Value is empty." name="NULL"/>
+				<reason code="INVALID" description="Value is outside of valid list-of-values." name="INVALID"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.ExpressionRule" code="CIF_DOB" dimension="VALIDITY" name="Birth Date">
+			<description>Mandatory for Active Customers. Optional for Prospects. Cannot be more than 150 years prior to the current date. Cannot be a future date.
+
+The date 1900-01-01 is considered default and introduced by ETL.</description>
+			<input>
+				<column name="src_birth_date" type="day"/>
+				<column name="src_customer_type" type="string"/>
+			</input>
+			<expressions>
+				<expression result="VALID">
+					<expression>src_birth_date is not null
+	and
+	src_birth_date &gt;= dateAdd(today(),-150,'YEAR')
+	and
+	src_birth_date &lt;= today()
+	and
+	src_birth_date is not toDate('1900-01-01','yyyy-MM-dd')</expression>
+				</expression>
+				<expression result="NULL">
+					<expression>src_birth_date is null</expression>
+				</expression>
+				<expression result="IN_FUTURE">
+					<expression>src_birth_date &gt; today()</expression>
+				</expression>
+				<expression result="IN_PAST">
+					<expression>src_birth_date &lt; dateAdd(today(),-150,'YEAR')</expression>
+				</expression>
+				<expression result="DEFAULT">
+					<expression>src_birth_date is toDate('1900-01-01','yyyy-MM-dd')</expression>
+				</expression>
+			</expressions>
+			<invalidityReasons>
+				<reason code="NULL" description="The value is empty (Active Customers only)." name="NULL"/>
+				<reason code="IN_FUTURE" description="The Birth date is in the future." name="IN_FUTURE"/>
+				<reason code="IN_PAST" description="The Birth date is more then 150 years in the past." name="IN_PAST"/>
+				<reason code="DEFAULT" description="The Birth date is 1900-01-01." name="DEFAULT"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.ExpressionRule" code="accuracy_test" name="General accuracy test" dimension="ACCURACY">
+			<description/>
+			<input>
+				<column name="in_column" type="string"/>
+				<column name="in_date" type="day"/>
+			</input>
+			<expressions>
+				<expression result="ACCURATE">
+					<expression>in_column is not null and in_date is not null
+	and
+in_date &lt;= today()
+	and
+in_date is not toDate('1900-01-01','yyyy-MM-dd')</expression>
+				</expression>
+				<expression result="NOT_ACCURATE">
+					<expression>in_column is not null</expression>
+				</expression>
+				<expression result="NULL">
+					<expression>in_column is null</expression>
+				</expression>
+			</expressions>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.ExpressionRule" code="completeness_test" name="General completeness test" dimension="COMPLETENESS">
+			<description/>
+			<input>
+				<column name="in_column" type="string"/>
+			</input>
+			<expressions>
+				<expression result="COMPLETE">
+					<expression>in_column is not null</expression>
+				</expression>
+				<expression result="NOT_COMPLETE">
+					<expression>in_column is null</expression>
+				</expression>
+			</expressions>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.ExpressionRule" code="MTCH_TAX_ID" name="Blacklisted Tax ID" dimension="MATCHING">
+			<description/>
+			<input>
+				<column name="in_tax_id" type="string"/>
+			</input>
+			<expressions>
+				<expression result="MATCH">
+					<expression>in_tax_id not in {'55-9500123', '99-9500123'}</expression>
+				</expression>
+				<expression result="PARTIAL_MATCH">
+					<expression>in_tax_id in {'99-9500123'}</expression>
+				</expression>
+				<expression result="NO_MATCH">
+					<expression>in_tax_id is not null</expression>
+				</expression>
+			</expressions>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.ExpressionRule" code="MTCH_CSTMR_TP" name="Customer type matched reference data" dimension="MATCHING">
+			<description/>
+			<input/>
+			<expressions>
+				<expression result="MATCH">
+					<expression>true</expression>
+				</expression>
+				<expression result="PARTIAL_MATCH">
+					<expression>false</expression>
+				</expression>
+				<expression result="NO_MATCH">
+					<expression>false</expression>
+				</expression>
+			</expressions>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.ExpressionRule" code="MTCH_BLACKLISTED_SSN" name="Restricted SSN" dimension="MATCHING">
+			<description/>
+			<input>
+				<column name="in_ssn" type="string"/>
+			</input>
+			<expressions>
+				<expression result="MATCH">
+					<expression>right(in_ssn,1)='1'</expression>
+				</expression>
+				<expression result="PARTIAL_MATCH">
+					<expression>right(in_ssn,1)='0'</expression>
+				</expression>
+				<expression result="NO_MATCH">
+					<expression>true</expression>
+				</expression>
+			</expressions>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.MultiEntityExpressionRule" code="HAS_VALID_W_EML" dimension="VALIDITY" name="Has valid work email">
+			<description>Customer has at least one valid work email. 
+Applicable on Active Customers only</description>
+			<input>
+				<columns>
+					<column name="src_cust_type" type="string"/>
+				</columns>
+				<childEntity>
+					<columns>
+						<column name="email_rule_result" type="string"/>
+						<column name="src_email_type" type="string"/>
+					</columns>
+					<selectionRules>
+						<acceptanceCondition>src_email_type = 'work'</acceptanceCondition>
+						<aggregatingOrderBy/>
+					</selectionRules>
+				</childEntity>
+			</input>
+			<expressions>
+				<expression result="VALID">
+					<expression>count(email_rule_result = 'VALID') &gt; 0
+or
+parent.src_cust_type != 'A'</expression>
+				</expression>
+				<expression result="HAS_NO_W_EMAIL">
+					<expression>count(email_rule_result) = 0</expression>
+				</expression>
+				<expression result="ALL_W_EMAILS_INV">
+					<expression>count(email_rule_result = 'VALID') = 0</expression>
+				</expression>
+			</expressions>
+			<invalidityReasons>
+				<reason code="HAS_NO_W_EMAIL" description="Customer does not have any Work Phone entry." name="HAS_NO_W_EMAIL"/>
+				<reason code="ALL_W_EMAILS_INV" description="All customer's phone calls are invalid." name="ALL_W_EMAILS_INV"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.MultiEntityExpressionRule" code="HAS_VALID_W_PHN" dimension="VALIDITY" name="Has at least one valid phone number">
+			<description>Party has at least one valid phone number:
+
+Phone number must be valid US or Canadian phone number.
+Both international (i.e. 001 or +1) prefixes are allowed as well as no prefix.
+The number must consists of 10 digits, with the first 3 digits being valid area code from a list-of-values. The only additional characters
+allowed are rounded brackets '(' ')' and dash '-'.
+
+Cases of 7 repeated digits after the area code are considered default values entered either by a user or ETL process.</description>
+			<input>
+				<columns>
+					<column name="src_cust_type" type="string"/>
+				</columns>
+				<childEntity>
+					<columns>
+						<column name="phone_rule_result" type="string"/>
+					</columns>
+					<selectionRules>
+						<acceptanceCondition/>
+						<aggregatingOrderBy>
+							<orderBy nullsFirst="false" orderDescending="false">
+								<expression>case(
+phone_rule_result = 'VALID', 0,
+phone_rule_result = 'NULL', 1,
+phone_rule_result = 'DEFAULT', 2,
+phone_rule_result = 'INVALID_CHARS', 3,
+phone_rule_result = 'SHORT', 4,
+phone_rule_result = 'INVALID_AREA_CODE', 5,
+phone_rule_result = 'LONG', 6,
+10
+)</expression>
+							</orderBy>
+						</aggregatingOrderBy>
+					</selectionRules>
+				</childEntity>
+			</input>
+			<expressions>
+				<expression result="VALID">
+					<expression>best.phone_rule_result = 'VALID'</expression>
+				</expression>
+				<expression result="NO_PHONE">
+					<expression>best.phone_rule_result is null</expression>
+				</expression>
+				<expression result="NULL">
+					<expression>best.phone_rule_result = 'NULL'</expression>
+				</expression>
+				<expression result="DEFAULT">
+					<expression>best.phone_rule_result = 'DEFAULT'</expression>
+				</expression>
+				<expression result="INVALID_CHARS">
+					<expression>best.phone_rule_result = 'INVALID_CHARS'</expression>
+				</expression>
+				<expression result="SHORT">
+					<expression>best.phone_rule_result = 'SHORT'</expression>
+				</expression>
+				<expression result="INVALID_AREA_CODE">
+					<expression>best.phone_rule_result = 'INVALID_AREA_CODE'</expression>
+				</expression>
+				<expression result="LONG">
+					<expression>best.phone_rule_result = 'LONG'</expression>
+				</expression>
+			</expressions>
+			<invalidityReasons>
+				<reason code="NO_PHONE" description="Customer has no associated phone contact." name="NO_PHONE"/>
+				<reason code="NULL" description="The value is empty." name="NULL"/>
+				<reason code="DEFAULT" description="Phone number consists of repeated characters only (i.e. 203 111-1111)" name="DEFAULT"/>
+				<reason code="INVALID_CHARS" description="Phone number contain invalid characters (letters)" name="INVALID_CHARS"/>
+				<reason code="SHORT" description="Phone number is shorter then 10 digits" name="SHORT"/>
+				<reason code="INVALID_AREA_CODE" description="Area code is invalid" name="INVALID_AREA_CODE"/>
+				<reason code="LONG" description="Phone number contains more then 10 digits (even after internation prefix separation)" name="LONG"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.CopyRule" code="cp_exp_email" dimension="VALIDITY" name="Email">
+			<description>Email is valid</description>
+			<invalidityReasons>
+				<reason code="EMAIL_EMPTY" description="Empty field." name="EMAIL_EMPTY"/>
+				<reason code="EMAIL_INVALID" description="Input e-mail address has an invalid format or has an unknown TLD." name="EMAIL_INVALID"/>
+				<reason code="EMAIL_AMBIGUOUS_DOMAIN" description="Input e-mail address contains only a TLD after @ (corresponding to the RFC 2822 standard), however the domain is considered suspicious." name="EMAIL_AMBIGUOUS_DOMAIN"/>
+				<reason code="EMAIL_CLEANSED" description="Email address is valid, however, the input value needs to be somewhat cleansed (brackets removed, i.e. &lt;email&gt; -&gt; email ). " name="EMAIL_CLEANSED"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.CopyRule" code="cp_exp_cust_type" dimension="VALIDITY" name="Customer Type">
+			<description>Customer type is mandatory attribute with allowed fields 'A' (Active), 'P' (Prospect), 'C' (Closed) as defined in reference file CSTMR_TYPE_2015_01.doc</description>
+			<invalidityReasons>
+				<reason code="NULL" description="The value is empty." name="NULL"/>
+				<reason code="INVALID" description="The value is outside of the allowed values." name="INVALID"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.CopyRule" code="cp_exp_gender" dimension="VALIDITY" name="Gender code">
+			<description>Gender code has to be 0 (male) or 1 (female).</description>
+			<invalidityReasons>
+				<reason code="NULL" description="Empty value" name="NULL"/>
+				<reason code="OUT_OF_DOMAIN" description="Code is different than 0, 1" name="OUT_OF_DOMAIN"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.CopyRule" code="cp_exp_full_name" dimension="VALIDITY" name="Full Name">
+			<description>Name contains valid first name and last name</description>
+			<invalidityReasons>
+				<reason code="NAME_UNKNOWN_WORD" description="Name contains unknown word" name="NAME_UNKNOWN_WORD"/>
+				<reason code="NAME_INITIAL_FOUND" description="Initial instead of first name" name="NAME_INITIAL_FOUND"/>
+				<reason code="NAME_TITLE_REMOVED" description="Name contains title" name="NAME_TITLE_REMOVED"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+		<rule class="com.ataccama.dqd.engine.rules.CopyRule" code="cp_exp_phone" dimension="VALIDITY" name="Phone">
+			<description>Phone number must be valid US or Canadian phone number.
+Both international (i.e. 001 or +1) prefixes are allowed as well as no prefix.
+The number must consists of 10 digits, with the first 3 digits being valid area code from a list-of-values. The only additional characters
+allowed are rounded brackets '(' ')' and dash '-'.
+
+Cases of 7 repeated digits after the area code are considered default values entered either by a user or ETL process.</description>
+			<invalidityReasons>
+				<reason code="NULL" description="The value is empty." name="NULL"/>
+				<reason code="DEFAULT" description="Phone number consists of repeated characters only (i.e. 203 111-1111)" name="DEFAULT"/>
+				<reason code="INVALID_CHARS" description="Phone number contain invalid characters (letters)" name="INVALID_CHARS"/>
+				<reason code="SHORT" description="Phone number is shorter then 10 digits" name="SHORT"/>
+				<reason code="INVALID_AREA_CODE" description="Area code is invalid" name="INVALID_AREA_CODE"/>
+				<reason code="LONG" description="Phone number contains more then 10 digits (even after internation prefix separation)" name="LONG"/>
+				<reason code="OTHER" description="Other reason for invalidity" name="Other reason"/>
+			</invalidityReasons>
+		</rule>
+	</rules>
+	<dimensions>
+		<dimension code="VALIDITY" mainDimension="true" name="Validity">
+			<results>
+				<result code="VALID" name="Valid"/>
+				<result code="INVALID" name="Invalid"/>
+			</results>
+		</dimension>
+		<dimension code="ACCURACY" description="" name="Accuracy">
+			<results>
+				<result code="ACCURATE" description="" name="Accurate"/>
+				<result code="NOT_ACCURATE" description="" name="Not Accurate"/>
+				<result code="NULL" description="" name="Null"/>
+			</results>
+		</dimension>
+		<dimension code="COMPLETENESS" description="" name="Completeness">
+			<results>
+				<result code="COMPLETE" description="" name="Complete"/>
+				<result code="NOT_COMPLETE" description="" name="Not complete"/>
+			</results>
+		</dimension>
+		<dimension code="MATCHING" description="" name="Matching to reference data">
+			<results>
+				<result code="MATCH" description="" name="Matched"/>
+				<result code="PARTIAL_MATCH" description="" name="Partialy matched"/>
+				<result code="NO_MATCH" description="" name="Not matched"/>
+			</results>
+		</dimension>
+	</dimensions>
+</dqd-config>

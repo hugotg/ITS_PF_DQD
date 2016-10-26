@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+	<port>7799</port>
+	<runtimeConfiguration>dqd.runtimeConfig</runtimeConfiguration>
+	<serverComponents>
+		<component class="com.ataccama.dqc.web.HttpDispatcher">
+			<listeners>
+				<listener name="default" port="8888" ssl="false" threads="10"/>
+			</listeners>
+		</component>
+		<component class="com.ataccama.dqc.server.services.AuthenticationService">
+			<methods/>
+		</component>
+		<component class="com.ataccama.dqc.server.services.HealthStateProviders" dataSourceRefreshRate="60" pathVariableRefreshRate="60"/>
+		<component class="com.ataccama.dqc.web.console.WebConsoleComponent"/>
+		<component class="com.ataccama.dqc.web.health.HealthStateWebConsole"/>
+		<component class="com.ataccama.dqd.engine.DqdServerComponent">
+			<configFile>dqd-config.xml</configFile>
+		</component>
+	</serverComponents>
+</server>
